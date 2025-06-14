@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naming</title>
+    <style>
+        :root {
+            --bg: #0a0f10;
+            --card: rgba(26, 36, 38, 0.8);
+            --primary: #64a5af;
+            --text: #e7edee;
+            --accent: #4a9eff;
+            --correct: #22c55e;
+            --incorrect: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, 
+                #1a2426 0%, 
+                #0f2027 25%, 
+                #203a43 50%, 
+                #2c5364 75%, 
+                #1a2426 100%);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3),
+                        inset 0 0 0 1px rgba(255,255,255,0.1);
+        }
+
+        .container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+
+        .container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3),
+                         0 0 20px rgba(100, 165, 175, 0.2);
+        }
+
+        .setup, .game, .results {
+            display: none;
+        }
+
+        .setup.active, .game.active, .results.active {
+            display: block;
+        }
+
+        .option {
+            margin-bottom: 1.5rem;
+        }
+
+        .option label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(100, 165, 175, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-item:hover {
+            background: rgba(100, 165, 175, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 0.5rem;
+            background: rgba(100, 165, 175, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            color: var(--text);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), #4a9eff);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #666, #444);
+        }
+
+        .question-card {
+            background: rgba(100, 165, 175, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .compound-type {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .answer-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem;
+            background: rgba(100, 165, 175, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .subscript-panel {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .subscript-btn {
+            padding: 0.5rem;
+            min-width: 2rem;
+            background: linear-gradient(135deg, var(--primary), #4a9eff);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .subscript-btn:hover {
+            transform: translateY(-2px) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .feedback {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .feedback.correct {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--correct);
+            border: 1px solid var(--correct);
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--incorrect);
+            border: 1px solid var(--incorrect);
+        }
+
+        .score {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-card {
+            background: rgba(100, 165, 175, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .stat-title {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .mistakes-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .mistakes-list li {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .question-history {
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+        }
+
+        .question-item {
+            background: rgba(100, 165, 175, 0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-item.correct {
+            border-left: 4px solid var(--correct);
+        }
+
+        .question-item.incorrect {
+            border-left: 4px solid var(--incorrect);
+        }
+
+        .question-item h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .user-answer, .correct-answer {
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+            .title { font-size: 1.5rem; }
+            .radio-group { flex-direction: column; }
+            .btn-group { flex-direction: column; }
+        }
+
+        @media (max-height: 800px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                margin-bottom: 1rem;
+            }
+
+            .question-card {
+                margin: 1rem 0;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Chemistry Naming</h1>
+
+        <div class="setup active" id="setup">
+            <div class="option">
+                <label>Game Mode:</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" name="mode" value="nameToFormula" id="nameToFormula" checked>
+                        <label for="nameToFormula">Name → Formula</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="mode" value="formulaToName" id="formulaToName">
+                        <label for="formulaToName">Formula → Name</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" name="mode" value="mixed" id="mixed">
+                        <label for="mixed">Mixed</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option">
+                <label>Compound Types:</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="checkbox" name="compoundType" value="binary-ionic" id="binary-ionic" checked>
+                        <label for="binary-ionic">Binary Ionic</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="checkbox" name="compoundType" value="multivalent-ionic" id="multivalent-ionic" checked>
+                        <label for="multivalent-ionic">Multivalent Ionic</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="checkbox" name="compoundType" value="polyatomic" id="polyatomic" checked>
+                        <label for="polyatomic">Polyatomic Ionic</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="checkbox" name="compoundType" value="molecular" id="molecular" checked>
+                        <label for="molecular">Molecular</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="checkbox" name="compoundType" value="acid" id="acid" checked>
+                        <label for="acid">Acids</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option">
+                <label for="questionCount">Questions:</label>
+                <input type="number" id="questionCount" value="10" min="5" max="25">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="startGame()">Start Game</button>
+            </div>
+        </div>
+
+        <div class="game" id="game">
+            <div class="score">Score: <span id="score">0</span>/<span id="total">0</span></div>
+            
+            <div class="question-card">
+                <div id="questionNum">Question 1 of 10</div>
+                <div class="question-text" id="question">Loading...</div>
+                <div class="compound-type" id="type"></div>
+                <input type="text" id="answer" class="answer-input" placeholder="Enter answer...">
+                <div class="subscript-panel">
+                    <button class="subscript-btn" onclick="addSubscript('₁')">₁</button>
+                    <button class="subscript-btn" onclick="addSubscript('₂')">₂</button>
+                    <button class="subscript-btn" onclick="addSubscript('₃')">₃</button>
+                    <button class="subscript-btn" onclick="addSubscript('₄')">₄</button>
+                    <button class="subscript-btn" onclick="addSubscript('₅')">₅</button>
+                    <button class="subscript-btn" onclick="addSubscript('₆')">₆</button>
+                    <button class="subscript-btn" onclick="addSubscript('₇')">₇</button>
+                    <button class="subscript-btn" onclick="addSubscript('₈')">₈</button>
+                    <button class="subscript-btn" onclick="addSubscript('₉')">₉</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" id="submitBtn" onclick="submit()">Submit</button>
+                <button class="btn btn-secondary" onclick="skip()">Skip</button>
+                <button class="btn" id="nextBtn" onclick="next()" style="display:none">Next →</button>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div style="text-align: center;">
+                <div class="final-score" id="finalScore">0/0</div>
+                <div style="font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem;" id="percentage">0%</div>
+                <div id="message">Keep practicing!</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Performance by Type</div>
+                    <div id="typeStats"></div>
+                </div>
+            </div>
+
+            <div class="question-history">
+                <h2 style="margin-bottom: 1rem;">Question History</h2>
+                <div id="questionHistory"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="reset()">Play Again</button>
+                <button class="btn" onclick="startPracticeMode()">Practice Weak Areas</button>
+                <button class="btn btn-secondary" onclick="showSetup()">Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const elements = {
+            1: {s: 'H', n: 'hydrogen', c: [1]}, 2: {s: 'He', n: 'helium', c: [0]}, 3: {s: 'Li', n: 'lithium', c: [1]},
+            4: {s: 'Be', n: 'beryllium', c: [2]}, 5: {s: 'B', n: 'boron', c: [3]}, 6: {s: 'C', n: 'carbon', c: [4,-4]},
+            7: {s: 'N', n: 'nitrogen', c: [-3]}, 8: {s: 'O', n: 'oxygen', c: [-2]}, 9: {s: 'F', n: 'fluorine', c: [-1]},
+            10: {s: 'Ne', n: 'neon', c: [0]}, 11: {s: 'Na', n: 'sodium', c: [1]}, 12: {s: 'Mg', n: 'magnesium', c: [2]},
+            13: {s: 'Al', n: 'aluminum', c: [3]}, 14: {s: 'Si', n: 'silicon', c: [4,-4]}, 15: {s: 'P', n: 'phosphorus', c: [5,3,-3]},
+            16: {s: 'S', n: 'sulfur', c: [-2]}, 17: {s: 'Cl', n: 'chlorine', c: [-1]}, 18: {s: 'Ar', n: 'argon', c: [0]},
+            19: {s: 'K', n: 'potassium', c: [1]}, 20: {s: 'Ca', n: 'calcium', c: [2]}, 21: {s: 'Sc', n: 'scandium', c: [3]},
+            22: {s: 'Ti', n: 'titanium', c: [4,3]}, 23: {s: 'V', n: 'vanadium', c: [5,4]}, 24: {s: 'Cr', n: 'chromium', c: [3,2]},
+            25: {s: 'Mn', n: 'manganese', c: [2,4]}, 26: {s: 'Fe', n: 'iron', c: [3,2]}, 27: {s: 'Co', n: 'cobalt', c: [2,3]},
+            28: {s: 'Ni', n: 'nickel', c: [2,3]}, 29: {s: 'Cu', n: 'copper', c: [2,1]}, 30: {s: 'Zn', n: 'zinc', c: [2]},
+            31: {s: 'Ga', n: 'gallium', c: [3]}, 32: {s: 'Ge', n: 'germanium', c: [4]}, 33: {s: 'As', n: 'arsenic', c: [3,5,-3]},
+            34: {s: 'Se', n: 'selenium', c: [-2]}, 35: {s: 'Br', n: 'bromine', c: [-1]}, 36: {s: 'Kr', n: 'krypton', c: [0]},
+            37: {s: 'Rb', n: 'rubidium', c: [1]}, 38: {s: 'Sr', n: 'strontium', c: [2]}, 39: {s: 'Y', n: 'yttrium', c: [3]},
+            40: {s: 'Zr', n: 'zirconium', c: [4]}, 41: {s: 'Nb', n: 'niobium', c: [5,3]}, 42: {s: 'Mo', n: 'molybdenum', c: [6]},
+            43: {s: 'Tc', n: 'technetium', c: [7]}, 44: {s: 'Ru', n: 'ruthenium', c: [3,4]}, 45: {s: 'Rh', n: 'rhodium', c: [3]},
+            46: {s: 'Pd', n: 'palladium', c: [2,3]}, 47: {s: 'Ag', n: 'silver', c: [1]}, 48: {s: 'Cd', n: 'cadmium', c: [2]},
+            49: {s: 'In', n: 'indium', c: [3]}, 50: {s: 'Sn', n: 'tin', c: [4,2]}, 51: {s: 'Sb', n: 'antimony', c: [3,5]},
+            52: {s: 'Te', n: 'tellurium', c: [-2]}, 53: {s: 'I', n: 'iodine', c: [-1]}, 54: {s: 'Xe', n: 'xenon', c: [0]},
+            55: {s: 'Cs', n: 'cesium', c: [1]}, 56: {s: 'Ba', n: 'barium', c: [2]}, 57: {s: 'La', n: 'lanthanum', c: [3,2]},
+            72: {s: 'Hf', n: 'hafnium', c: [4]}, 73: {s: 'Ta', n: 'tantalum', c: [5]}, 74: {s: 'W', n: 'tungsten', c: [6]},
+            75: {s: 'Re', n: 'rhenium', c: [7]}, 76: {s: 'Os', n: 'osmium', c: [4]}, 77: {s: 'Ir', n: 'iridium', c: [4]},
+            78: {s: 'Pt', n: 'platinum', c: [4,2]}, 79: {s: 'Au', n: 'gold', c: [3,1]}, 80: {s: 'Hg', n: 'mercury', c: [2,1]},
+            81: {s: 'Tl', n: 'thallium', c: [1,3]}, 82: {s: 'Pb', n: 'lead', c: [2,4]}, 83: {s: 'Bi', n: 'bismuth', c: [3,5]},
+            84: {s: 'Po', n: 'polonium', c: [2,4]}, 85: {s: 'At', n: 'astatine', c: [-1]}, 86: {s: 'Rn', n: 'radon', c: [0]},
+            87: {s: 'Fr', n: 'francium', c: [1]}, 88: {s: 'Ra', n: 'radium', c: [2]}, 89: {s: 'Ac', n: 'actinium', c: [3,2]}
+        };
+
+        const polyatomic = {
+            'NH₄': {n: 'ammonium', c: 1, pos: true},
+            'NO₃': {n: 'nitrate', c: -1}, 'SO₄': {n: 'sulfate', c: -2}, 'CO₃': {n: 'carbonate', c: -2},
+            'OH': {n: 'hydroxide', c: -1}, 'ClO₃': {n: 'chlorate', c: -1}, 'PO₄': {n: 'phosphate', c: -3},
+            'HCO₃': {n: 'bicarbonate', c: -1}, 'SO₃': {n: 'sulfite', c: -2},
+            'NO₂': {n: 'nitrite', c: -1}, 'CN': {n: 'cyanide', c: -1}, 'HSO₄': {n: 'bisulfate', c: -1},
+            'ClO₂': {n: 'chlorite', c: -1}, 'PO₃': {n: 'phosphite', c: -3}, 'HPO₄': {n: 'biphosphate', c: -2}
+        };
+
+        const nonmetalBases = {
+            'nitrogen': 'nitr',
+            'oxygen': 'ox',
+            'fluorine': 'fluor',
+            'phosphorus': 'phosph',
+            'sulfur': 'sulf',
+            'chlorine': 'chlor',
+            'selenium': 'selen',
+            'bromine': 'brom',
+            'iodine': 'iod',
+            'tellurium': 'tellur',
+            'astatine': 'astat'
+        };
+
+        function getNonmetalBase(nonmetalName) {
+            if (nonmetalBases[nonmetalName]) {
+                return nonmetalBases[nonmetalName];
+            }
+            if (nonmetalName.endsWith('ine')) {
+                return nonmetalName.slice(0, -3);
+            } else if (nonmetalName.endsWith('gen')) {
+                return nonmetalName.slice(0, -3);
+            } else if (nonmetalName.endsWith('us') || nonmetalName.endsWith('um')) {
+                return nonmetalName.slice(0, -2);
+            }
+            return nonmetalName;
+        }
+
+        let game = {
+            mode: '', 
+            total: 10, 
+            current: 0, 
+            score: 0, 
+            questions: [], 
+            answer: '',
+            types: []
+        };
+
+        const stats = {
+            history: [],
+            typeStats: {},
+            mistakes: {},
+            currentSession: {
+                questions: [],
+                score: 0,
+                total: 0
+            },
+            load() {
+                const saved = localStorage.getItem('chemistryStats');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.history = data.history || [];
+                    this.typeStats = data.typeStats || {};
+                    this.mistakes = data.mistakes || {};
+                }
+            },
+            save() {
+                localStorage.setItem('chemistryStats', JSON.stringify({
+                    history: this.history,
+                    typeStats: this.typeStats,
+                    mistakes: this.mistakes
+                }));
+            },
+            addResult(score, total, questions) {
+                const answeredQuestions = questions.filter(q => q.userAnswer !== undefined);
+                if (answeredQuestions.length === 0) return;
+
+                this.history.push({
+                    date: new Date().toISOString(),
+                    score,
+                    total: answeredQuestions.length,
+                    questions: answeredQuestions.map(q => ({
+                        type: q.compound.type,
+                        correct: q.userAnswer === q.answer,
+                        question: q.question,
+                        answer: q.answer,
+                        userAnswer: q.userAnswer
+                    }))
+                });
+
+                const sessionStats = {};
+                answeredQuestions.forEach(q => {
+                    const type = q.compound.type;
+                    if (!sessionStats[type]) {
+                        sessionStats[type] = { correct: 0, total: 0 };
+                    }
+                    sessionStats[type].total++;
+                    if (q.userAnswer === q.answer) {
+                        sessionStats[type].correct++;
+                    }
+                });
+
+                Object.entries(sessionStats).forEach(([type, stats]) => {
+                    if (!this.typeStats[type]) {
+                        this.typeStats[type] = { correct: 0, total: 0 };
+                    }
+                    this.typeStats[type].correct += stats.correct;
+                    this.typeStats[type].total += stats.total;
+                });
+
+                this.save();
+            },
+            getWeakAreas() {
+                return Object.entries(this.typeStats)
+                    .map(([type, stats]) => ({
+                        type,
+                        accuracy: (stats.correct / stats.total) * 100
+                    }))
+                    .filter(stat => stat.accuracy < 70)
+                    .map(stat => stat.type);
+            }
+        };
+
+        function getRandElem(exclude = []) {
+            const nums = Object.keys(elements).map(Number).filter(n => !exclude.includes(n));
+            return elements[nums[Math.floor(Math.random() * nums.length)]];
+        }
+
+        function genIonic() {
+            const metal = getRandElem([2,10,18,36,54,86]);
+            const nonmetal = getRandElem([2,10,18,36,54,86]);
+            
+            const mCharges = metal.c.filter(c => c > 0);
+            const nCharges = nonmetal.c.filter(c => c < 0);
+            
+            if (!mCharges.length || !nCharges.length) return genIonic();
+            
+            const mCharge = mCharges[Math.floor(Math.random() * mCharges.length)];
+            const nCharge = nCharges[Math.floor(Math.random() * nCharges.length)];
+            
+            const gcd = (a,b) => b === 0 ? a : gcd(b, a % b);
+            const lcm = Math.abs(mCharge * Math.abs(nCharge)) / gcd(Math.abs(mCharge), Math.abs(nCharge));
+            const mSub = lcm / Math.abs(mCharge);
+            const nSub = lcm / Math.abs(nCharge);
+            
+            let formula = metal.s;
+            if (mSub > 1) formula += sub(mSub);
+            formula += nonmetal.s;
+            if (nSub > 1) formula += sub(nSub);
+            
+            let name = metal.n;
+            if (mCharges.length > 1) name += `(${roman(mCharge)})`;
+            name += ' ' + nonmetal.n.slice(0, -1) + 'ide';
+            
+            return {formula, name, type: mCharges.length > 1 ? 'Multivalent Ionic' : 'Binary Ionic'};
+        }
+
+        function genPolyatomic() {
+            const polyKeys = Object.keys(polyatomic);
+            const poly = polyKeys[Math.floor(Math.random() * polyKeys.length)];
+            const polyData = polyatomic[poly];
+            
+            if (polyData.pos) {
+                const nonmetalKeys = Object.keys(polyatomic).filter(k => !polyatomic[k].pos);
+                const anion = nonmetalKeys[Math.floor(Math.random() * nonmetalKeys.length)];
+                const anionData = polyatomic[anion];
+                
+                const gcd = (a,b) => b === 0 ? a : gcd(b, a % b);
+                const lcm = Math.abs(polyData.c * Math.abs(anionData.c)) / gcd(Math.abs(polyData.c), Math.abs(anionData.c));
+                const cSub = lcm / Math.abs(polyData.c);
+                const aSub = lcm / Math.abs(anionData.c);
+                
+                let formula = poly;
+                if (cSub > 1) formula = poly + sub(cSub);
+                if (aSub > 1) formula += '(' + anion + ')' + sub(aSub);
+                else formula += anion;
+                
+                let name = polyData.n + ' ' + anionData.n;
+                
+                return {formula, name, type: 'Polyatomic Ionic'};
+            }
+            
+            const metal = getRandElem([2,10,18,36,54,86]);
+            const mCharges = metal.c.filter(c => c > 0);
+            if (!mCharges.length) return genPolyatomic();
+            
+            const mCharge = mCharges[Math.floor(Math.random() * mCharges.length)];
+            
+            const gcd = (a,b) => b === 0 ? a : gcd(b, a % b);
+            const lcm = Math.abs(mCharge * Math.abs(polyData.c)) / gcd(Math.abs(mCharge), Math.abs(polyData.c));
+            const mSub = lcm / Math.abs(mCharge);
+            const pSub = lcm / Math.abs(polyData.c);
+            
+            let formula = metal.s;
+            if (mSub > 1) formula += sub(mSub);
+            if (pSub > 1) formula += '(' + poly + ')' + sub(pSub);
+            else formula += poly;
+            
+            let name = metal.n;
+            if (mCharges.length > 1) name += `(${roman(mCharge)})`;
+            name += ' ' + polyData.n;
+            
+            return {formula, name, type: 'Polyatomic Ionic'};
+        }
+
+        const commonMolecules = {
+            'H₂O': 'water',
+            'H₂O₂': 'hydrogen peroxide',
+            'CH₄': 'methane',
+            'NH₃': 'ammonia',
+            'H₂': 'hydrogen gas',
+            'N₂': 'nitrogen gas',
+            'O₂': 'oxygen gas',
+            'F₂': 'fluorine gas',
+            'Cl₂': 'chlorine gas',
+            'Br₂': 'bromine gas',
+            'I₂': 'iodine gas',
+            'P₄': 'phosphorus',
+            'S₈': 'sulfur',
+            'O₃': 'ozone'
+        };
+
+        function genMolecular() {
+            if (Math.random() < 0.2) {
+                const formulas = Object.keys(commonMolecules);
+                const formula = formulas[Math.floor(Math.random() * formulas.length)];
+                const name = commonMolecules[formula];
+                return {formula, name, type: 'Molecular'};
+            }
+            
+            const nonmetals = [1,6,7,8,9,15,16,17,33,34,35,51,52,53,85];
+            const e1 = nonmetals[Math.floor(Math.random() * nonmetals.length)];
+            let e2 = nonmetals[Math.floor(Math.random() * nonmetals.length)];
+            while (e1 === e2) e2 = nonmetals[Math.floor(Math.random() * nonmetals.length)];
+            
+            const elem1 = elements[e1];
+            const elem2 = elements[e2];
+            const s1 = Math.floor(Math.random() * 4) + 1;
+            const s2 = Math.floor(Math.random() * 4) + 1;
+            
+            let formula = elem1.s;
+            if (s1 > 1) formula += sub(s1);
+            formula += elem2.s;
+            if (s2 > 1) formula += sub(s2);
+            
+            const prefixes = ['', 'mono', 'di', 'tri', 'tetra', 'penta', 'hexa', 'hepta', 'octa', 'nona', 'deca'];
+            let name = (s1 > 1 ? prefixes[s1] : '') + elem1.n + ' ';
+            let elem2Base = getNonmetalBase(elem2.n);
+            name += prefixes[s2] + elem2Base + 'ide';
+            
+            return {formula, name, type: 'Molecular'};
+        }
+
+        function sub(n) {
+            const subs = ['₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
+            return subs[n - 1] || n.toString();
+        }
+
+        function roman(n) {
+            const romans = {1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI', 7: 'VII'};
+            return romans[n] || n.toString();
+        }
+
+        function genCompound() {
+            const types = ['binary-ionic', 'multivalent-ionic', 'polyatomic', 'molecular', 'acid'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            switch(type) {
+                case 'binary-ionic':
+                    return genBinaryIonic();
+                case 'multivalent-ionic':
+                    return genMultivalentIonic();
+                case 'polyatomic':
+                    return genPolyatomic();
+                case 'molecular':
+                    return genMolecular();
+                case 'acid':
+                    return genAcid();
+            }
+        }
+
+        function genBinaryIonic() {
+            const metals = [3,11,19,37,55,87,4,12,20,38,56,88];
+            const nonmetals = [9,17,35,53,8,16,34,52,7,15,33];
+            
+            const metal = elements[metals[Math.floor(Math.random() * metals.length)]];
+            const nonmetal = elements[nonmetals[Math.floor(Math.random() * nonmetals.length)]];
+            
+            const mCharge = metal.c[0];
+            const nCharge = nonmetal.c.filter(c => c < 0)[0];
+            
+            const gcd = (a,b) => b === 0 ? a : gcd(b, a % b);
+            const lcm = Math.abs(mCharge * Math.abs(nCharge)) / gcd(Math.abs(mCharge), Math.abs(nCharge));
+            const mSub = lcm / Math.abs(mCharge);
+            const nSub = lcm / Math.abs(nCharge);
+            
+            let formula = metal.s;
+            if (mSub > 1) formula += sub(mSub);
+            formula += nonmetal.s;
+            if (nSub > 1) formula += sub(nSub);
+            
+            let nonmetalBase = getNonmetalBase(nonmetal.n);
+            let name = metal.n + ' ' + nonmetalBase + 'ide';
+            
+            return {formula, name, type: 'Binary Ionic'};
+        }
+
+        function genMultivalentIonic() {
+            const metals = [26,29,80,82,83,51,50];
+            const nonmetals = [9,17,35,53,8,16,34,52,7,15,33];
+            
+            const metal = elements[metals[Math.floor(Math.random() * metals.length)]];
+            const nonmetal = elements[nonmetals[Math.floor(Math.random() * nonmetals.length)]];
+            
+            const mCharge = metal.c[Math.floor(Math.random() * metal.c.length)];
+            const nCharge = nonmetal.c.filter(c => c < 0)[0];
+            
+            const gcd = (a,b) => b === 0 ? a : gcd(b, a % b);
+            const lcm = Math.abs(mCharge * Math.abs(nCharge)) / gcd(Math.abs(mCharge), Math.abs(nCharge));
+            const mSub = lcm / Math.abs(mCharge);
+            const nSub = lcm / Math.abs(nCharge);
+            
+            let formula = metal.s;
+            if (mSub > 1) formula += sub(mSub);
+            formula += nonmetal.s;
+            if (nSub > 1) formula += sub(nSub);
+            
+            let nonmetalBase = getNonmetalBase(nonmetal.n);
+            let name = metal.n + `(${roman(Math.abs(mCharge))}) ` + nonmetalBase + 'ide';
+            
+            return {formula, name, type: 'Multivalent Ionic'};
+        }
+
+        function genAcid() {
+            const acids = {
+                'HCl': 'hydrochloric acid',
+                'HBr': 'hydrobromic acid',
+                'HI': 'hydroiodic acid',
+                'H₂S': 'hydrosulfuric acid',
+                'HNO₃': 'nitric acid',
+                'H₂SO₄': 'sulfuric acid',
+                'H₃PO₄': 'phosphoric acid',
+                'HClO₃': 'chloric acid',
+                'HNO₂': 'nitrous acid',
+                'H₂SO₃': 'sulfurous acid',
+                'H₃PO₃': 'phosphorous acid',
+                'HClO₂': 'chlorous acid',
+            };
+            
+            const formulas = Object.keys(acids);
+            const formula = formulas[Math.floor(Math.random() * formulas.length)];
+            const name = acids[formula];
+            
+            return {formula, name, type: 'Acid'};
+        }
+
+        function startGame() {
+            game.types = Array.from(document.querySelectorAll('input[name="compoundType"]:checked'))
+                .map(cb => cb.value);
+            
+            if (game.types.length === 0) {
+                alert('Please select at least one compound type');
+                return;
+            }
+
+            game.mode = document.querySelector('input[name="mode"]:checked').value;
+            game.total = parseInt(document.getElementById('questionCount').value) || 10;
+            if (game.total < 5) game.total = 5;
+            if (game.total > 25) game.total = 25;
+            game.current = 0;
+            game.score = 0;
+            game.questions = [];
+            
+            game.sessionStats = {};
+            
+            for (let i = 0; i < game.total; i++) {
+                const type = game.types[Math.floor(Math.random() * game.types.length)];
+                let compound;
+                
+                switch(type) {
+                    case 'binary-ionic':
+                        compound = genBinaryIonic();
+                        break;
+                    case 'multivalent-ionic':
+                        compound = genMultivalentIonic();
+                        break;
+                    case 'polyatomic':
+                        compound = genPolyatomic();
+                        break;
+                    case 'molecular':
+                        compound = genMolecular();
+                        break;
+                    case 'acid':
+                        compound = genAcid();
+                        break;
+                }
+
+                let mode = game.mode === 'mixed' ? 
+                    (Math.random() < 0.5 ? 'nameToFormula' : 'formulaToName') : 
+                    game.mode;
+
+                game.questions.push({
+                    compound,
+                    mode,
+                    question: mode === 'nameToFormula' ? compound.name : compound.formula,
+                    answer: mode === 'nameToFormula' ? compound.formula : compound.name
+                });
+            }
+            
+            showPanel('game');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (game.current >= game.total) {
+                showResults();
+                return;
+            }
+            
+            const q = game.questions[game.current];
+            document.getElementById('questionNum').textContent = `Question ${game.current + 1} of ${game.total}`;
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('type').textContent = q.compound.type;
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('total').textContent = game.total;
+            document.getElementById('answer').value = '';
+            document.getElementById('answer').disabled = false;
+            document.getElementById('answer').focus();
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            game.answer = q.answer;
+        }
+
+        function addSubscript(sub) {
+            const input = document.getElementById('answer');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const value = input.value;
+            input.value = value.substring(0, start) + sub + value.substring(end);
+            input.focus();
+            input.setSelectionRange(start + sub.length, start + sub.length);
+        }
+
+        function submit() {
+            const userAnswer = document.getElementById('answer').value.trim();
+            game.questions[game.current].userAnswer = userAnswer;
+            game.questions[game.current].answered = true;
+    
+            const correctAnswer = game.answer.toLowerCase();
+            const feedback = document.getElementById('feedback');
+            
+            const isCorrect = normalize(userAnswer) === normalize(correctAnswer);
+            
+            if (isCorrect) {
+                game.score++;
+                feedback.className = 'feedback correct';
+                feedback.textContent = 'Correct! ✓';
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = `Incorrect. Answer: ${game.answer}`;
+            }
+            
+            feedback.style.display = 'block';
+            document.getElementById('score').textContent = game.score;
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('answer').disabled = true;
+        }
+
+        function normalize(answer) {
+            let normalized = answer.toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/[\(\)]/g, '')
+                .replace(/[₁₂₃₄₅₆₇₈₉]/g, '');
+            
+            normalized = normalized
+                .replace('tri', 'tri')
+                .replace('mono', 'mono')
+                .replace('di', 'di')
+                .replace('tetra', 'tetra')
+                .replace('penta', 'penta')
+                .replace('hexa', 'hexa')
+                .replace('hepta', 'hepta')
+                .replace('octa', 'octa')
+                .replace('nona', 'nona')
+                .replace(/iodine/g, 'iodine')
+                .replace(/oxide/g, 'oxide');
+            
+            return normalized;
+        }
+
+        function skip() {
+            game.questions[game.current].userAnswer = 'Skipped';
+            game.questions[game.current].answered = true;
+    
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback';
+            feedback.style.background = 'rgba(100, 165, 175, 0.2)';
+            feedback.style.color = 'var(--accent)';
+            feedback.textContent = `Skipped. Answer: ${game.answer}`;
+            feedback.style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('answer').disabled = true;
+        }
+
+        function next() {
+            game.current++;
+            showQuestion();
+        }
+
+        function showResults() {
+            const answeredQuestions = game.questions.filter(q => q.answered);
+            const answeredCount = answeredQuestions.length;
+            if (answeredCount === 0) {
+                showSetup();
+                return;
+            }
+
+            showPanel('results');
+            const percent = Math.round((game.score / answeredCount) * 100);
+            document.getElementById('finalScore').textContent = `${game.score}/${answeredCount}`;
+            document.getElementById('percentage').textContent = `${percent}%`;
+            
+            let message = '';
+            if (percent >= 90) message = '🏆 Excellent! Chemistry expert!';
+            else if (percent >= 80) message = '🎉 Great job! Solid understanding!';
+            else if (percent >= 70) message = '👍 Good work! Keep practicing!';
+            else if (percent >= 60) message = '📚 Not bad! Review and try again!';
+            else message = '💪 Keep studying! Practice makes perfect!';
+            
+            document.getElementById('message').textContent = message;
+
+            const historyDiv = document.getElementById('questionHistory');
+            historyDiv.innerHTML = '';
+            
+            answeredQuestions.forEach((q, index) => {
+                const isCorrect = normalize(q.userAnswer) === normalize(q.answer);
+                const html = `
+                    <div class="question-item ${isCorrect ? 'correct' : 'incorrect'}">
+                        <h3>Question ${index + 1} - ${q.compound.type}</h3>
+                        <div>Q: ${q.question}</div>
+                        <div class="answer-comparison">
+                            <div class="user-answer">
+                                Your answer: ${q.userAnswer || 'Skipped'}
+                            </div>
+                            <div class="correct-answer">
+                                Correct answer: ${q.answer}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                historyDiv.innerHTML += html;
+            });
+
+            const typeStats = document.getElementById('typeStats');
+            typeStats.innerHTML = '';
+            
+            const sessionStats = {};
+            answeredQuestions.forEach(q => {
+                const type = q.compound.type;
+                if (!sessionStats[type]) {
+                    sessionStats[type] = { correct: 0, total: 0 };
+                }
+                sessionStats[type].total++;
+                if (q.userAnswer === q.answer) {
+                    sessionStats[type].correct++;
+                }
+            });
+
+            Object.entries(sessionStats).forEach(([type, s]) => {
+                const percent = Math.round((s.correct / s.total) * 100);
+                typeStats.innerHTML += `<div>${type}: ${percent}% (${s.correct}/${s.total})</div>`;
+            });
+
+            stats.load();
+            stats.addResult(game.score, answeredCount, answeredQuestions);
+        }
+
+        function reset() {
+            game = {mode: '', total: 10, current: 0, score: 0, questions: [], answer: ''};
+            startGame();
+        }
+
+        function showSetup() {
+            showPanel('setup');
+        }
+
+        function showPanel(id) {
+            document.querySelectorAll('.setup, .game, .results').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        document.getElementById('answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (document.getElementById('submitBtn').style.display !== 'none') submit();
+                else if (document.getElementById('nextBtn').style.display !== 'none') next();
+            }
+        });
+
+        function startPracticeMode() {
+            stats.load();
+            const weakAreas = stats.getWeakAreas();
+            if (weakAreas.length === 0) {
+                alert('No weak areas detected. Keep practicing all types!');
+                return;
+            }
+            
+            game.types = weakAreas;
+            game.mode = 'mixed';
+            game.total = 10;
+            startGame();
+        }
+    </script>
+</body>
+</html>

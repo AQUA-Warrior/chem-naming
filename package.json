@@ -1,0 +1,15 @@
+{
+  "name": "name",
+  "version": "1.0.0",
+  "description": "name",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "devStart": "nodemon server.js"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
